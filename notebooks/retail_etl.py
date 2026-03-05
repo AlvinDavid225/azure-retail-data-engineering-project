@@ -1,11 +1,5 @@
-# Databricks notebook source
-dbutils.fs.mount(
-  source = "wasbs://retail@retailproject.blob.core.windows.net",
-  mount_point = "/mnt/retail_project",
-  extra_configs = {"fs.azure.account.key.retailproject.blob.core.windows.net":"secret access key"})
-
 # --------------------------------------------
-# Configure Access to Azure Data Lake Storage
+# Configure Azure Storage Access
 # --------------------------------------------
 
 spark.conf.set(
@@ -13,7 +7,6 @@ spark.conf.set(
 "<STORAGE_ACCOUNT_KEY>"
 )
 
-# COMMAND ----------
 # --------------------------------------------
 # Read Bronze Layer
 # --------------------------------------------
@@ -34,20 +27,12 @@ df_customers = spark.read.parquet(
 "wasbs://retail@retaildatalake225.blob.core.windows.net/bronze/customer/"
 )
 
+# --------------------------------------------
+# Data Cleaning (Silver Layer)
+# --------------------------------------------
 
-
-
-
-# COMMAND ----------
-
-display(df_transactions)
-
-# COMMAND ----------
-
-# DBTITLE 1,create silver layer - data cleaning
 from pyspark.sql.functions import col
 
-# Convert types and clean data
 df_transactions = df_transactions.select(
     col("transaction_id").cast("int"),
     col("customer_id").cast("int"),
@@ -71,44 +56,54 @@ df_stores = df_stores.select(
 )
 
 df_customers = df_customers.select(
-    "customer_id", "first_name", "last_name", "email", "city", "registration_date"
+    "customer_id",
+    "first_name",
+    "last_name",
+    "email",
+    "city",
+    "registration_date"
 ).dropDuplicates(["customer_id"])
 
+# --------------------------------------------
+# Join Data → Silver Dataset
+# --------------------------------------------
 
-# COMMAND ----------
-
-# DBTITLE 1,join all data together
-# Join all data
-df_silver = df_transactions \
-    .join(df_customers, "customer_id") \
-    .join(df_products, "product_id") \
-    .join(df_stores, "store_id") \
+df_silver = (
+    df_transactions
+    .join(df_customers, "customer_id")
+    .join(df_products, "product_id")
+    .join(df_stores, "store_id")
     .withColumn("total_amount", col("quantity") * col("price"))
+)
 
-
-# COMMAND ----------
-
-display(df_silver)
-
-# COMMAND ----------
+# --------------------------------------------
+# Save Silver Layer
+# --------------------------------------------
 
 silver_path = "wasbs://retail@retaildatalake225.blob.core.windows.net/silver/"
 
 df_silver.write.mode("overwrite").format("delta").save(silver_path)
 
+# --------------------------------------------
+# Read Silver Layer
+# --------------------------------------------
 
-# COMMAND ----------
+silver_df = spark.read.format("delta").load(silver_path)
 
-display(silver_df)
-
-# COMMAND ----------
+# --------------------------------------------
+# Gold Layer Aggregations
+# --------------------------------------------
 
 from pyspark.sql.functions import sum, countDistinct, avg
 
 gold_df = silver_df.groupBy(
     "transaction_date",
-    "product_id", "product_name", "category",
-    "store_id", "store_name", "location"
+    "product_id",
+    "product_name",
+    "category",
+    "store_id",
+    "store_name",
+    "location"
 ).agg(
     sum("quantity").alias("total_quantity_sold"),
     sum("total_amount").alias("total_sales_amount"),
@@ -116,19 +111,10 @@ gold_df = silver_df.groupBy(
     avg("total_amount").alias("average_transaction_value")
 )
 
-
-# COMMAND ----------
-
-display(gold_df)
-
-# COMMAND ----------
+# --------------------------------------------
+# Save Gold Layer
+# --------------------------------------------
 
 gold_path = "wasbs://retail@retaildatalake225.blob.core.windows.net/gold/"
 
 gold_df.write.mode("overwrite").format("delta").save(gold_path)
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
