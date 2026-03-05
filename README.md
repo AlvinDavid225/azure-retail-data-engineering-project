@@ -10,6 +10,7 @@ The pipeline transforms raw data into analytics-ready datasets and provides busi
 # Architecture
 
 The pipeline architecture is designed using the modern **lakehouse approach**.
+![Architecture Diagram](architecture Image.png)
 
 Data Flow:
 
