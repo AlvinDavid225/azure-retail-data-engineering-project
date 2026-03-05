@@ -4,22 +4,36 @@ dbutils.fs.mount(
   mount_point = "/mnt/retail_project",
   extra_configs = {"fs.azure.account.key.retailproject.blob.core.windows.net":"secret access key"})
 
+# --------------------------------------------
+# Configure Access to Azure Data Lake Storage
+# --------------------------------------------
 
+spark.conf.set(
+"fs.azure.account.key.retaildatalake225.blob.core.windows.net",
+"<STORAGE_ACCOUNT_KEY>"
+)
 
 # COMMAND ----------
+# --------------------------------------------
+# Read Bronze Layer
+# --------------------------------------------
 
-dbutils.fs.ls('/mnt/retail_project/bronze/transaction/')
+df_transactions = spark.read.parquet(
+"wasbs://retail@retaildatalake225.blob.core.windows.net/bronze/transaction/"
+)
 
-# COMMAND ----------
+df_products = spark.read.parquet(
+"wasbs://retail@retaildatalake225.blob.core.windows.net/bronze/product/"
+)
 
-# DBTITLE 1,read the bronze layer
-# Read raw data from Bronze layer
-df_transactions = spark.read.parquet('/mnt/retail_project/bronze/transaction/')
-df_products = spark.read.parquet('/mnt/retail_project/bronze/product/')
-df_stores = spark.read.parquet('/mnt/retail_project/bronze/store/')
+df_stores = spark.read.parquet(
+"wasbs://retail@retaildatalake225.blob.core.windows.net/bronze/store/"
+)
 
-df_customers = spark.read.parquet('/mnt/retail_project/bronze/customer/manish040596/azure-data-engineer---multi-source/refs/heads/main/')
-display(df_customers)
+df_customers = spark.read.parquet(
+"wasbs://retail@retaildatalake225.blob.core.windows.net/bronze/customer/"
+)
+
 
 
 
@@ -78,31 +92,9 @@ display(df_silver)
 
 # COMMAND ----------
 
-# DBTITLE 1,dump to adls location
-silver_path = "/mnt/retail_project/silver/"
+silver_path = "wasbs://retail@retaildatalake225.blob.core.windows.net/silver/"
 
 df_silver.write.mode("overwrite").format("delta").save(silver_path)
-
-
-# COMMAND ----------
-
-# DBTITLE 1,create silver dataset
-spark.sql(f"""
-CREATE TABLE retail_silver_cleaned
-USING DELTA
-LOCATION '/mnt/retail_project/silver/'
-""")
-
-
-# COMMAND ----------
-
-# MAGIC %sql select * from retail_silver_cleaned
-
-# COMMAND ----------
-
-# DBTITLE 1,gold layer
-# Load cleaned transactions from Silver layer
-silver_df = spark.read.format("delta").load("/mnt/retail_project/silver/")
 
 
 # COMMAND ----------
@@ -131,21 +123,12 @@ display(gold_df)
 
 # COMMAND ----------
 
-gold_path = "/mnt/retail_project/gold/"
+gold_path = "wasbs://retail@retaildatalake225.blob.core.windows.net/gold/"
 
 gold_df.write.mode("overwrite").format("delta").save(gold_path)
 
-
 # COMMAND ----------
 
-spark.sql("""
-CREATE TABLE retail_gold_sales_summary
-USING DELTA
-LOCATION '/mnt/retail_project/gold/' """)
 
-
-# COMMAND ----------
-
-# MAGIC %sql select * from retail_gold_sales_summary
 
 # COMMAND ----------
