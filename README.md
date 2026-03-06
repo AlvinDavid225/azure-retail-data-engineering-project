@@ -44,6 +44,7 @@ These datasets represent the **Bronze Layer** of the Medallion architecture.
 
 ![ADF Pipeline](images/adf-pipeline.png)
 
+
 ---
 
 ## 2 Data Transformation (Databricks)
@@ -111,7 +112,7 @@ Insights provided:
 
 # Dashboard Preview   retail-databricks-notebook.png
 
-![Retail Dashboard](screenshots/retail-databricks-notebook.png)
+![Retail-dashboard](images/retail-dashboard.png)
 
 
 ---
