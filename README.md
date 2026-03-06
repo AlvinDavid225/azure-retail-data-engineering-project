@@ -1,3 +1,8 @@
+![Azure](https://img.shields.io/badge/Azure-Data%20Engineering-blue)
+![Databricks](https://img.shields.io/badge/Databricks-PySpark-orange)
+![PowerBI](https://img.shields.io/badge/PowerBI-Dashboard-yellow)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 # Azure Retail Data Engineering Pipeline
 
 This project demonstrates an end-to-end data engineering pipeline built on Microsoft Azure to process and analyze retail sales data.  
