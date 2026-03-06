@@ -10,7 +10,8 @@ The pipeline transforms raw data into analytics-ready datasets and provides busi
 # Architecture
 
 The pipeline architecture is designed using the modern **lakehouse approach**.
-![Architecture Diagram](Architecture%20Image.png)
+
+![Architecture](images/Architecture%20Image.png)
 
 Data Flow:
 
@@ -41,9 +42,13 @@ The datasets include:
 
 These datasets represent the **Bronze Layer** of the Medallion architecture.
 
+![ADF Pipeline](images/adf-pipeline.png)
+
 ---
 
 ## 2 Data Transformation (Databricks)
+
+![Databricks Notebook](images/retail-databricks-notebook.png)
 
 Using **PySpark in Azure Databricks**, the raw datasets are cleaned and transformed.
 
