@@ -109,9 +109,10 @@ Insights provided:
 
 ---
 
-# Dashboard Preview
+# Dashboard Preview   retail-databricks-notebook.png
 
-![Retail Dashboard](screenshots/dashboard.png)
+![Retail Dashboard](screenshots/retail-databricks-notebook.png)
+
 
 ---
 
