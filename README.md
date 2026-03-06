@@ -6,6 +6,36 @@ The solution follows the **Medallion Architecture (Bronze → Silver → Gold)**
 The pipeline transforms raw data into analytics-ready datasets and provides business insights through an interactive Power BI dashboard.
 
 ---
+# Azure Infrastructure Setup
+
+The project infrastructure is deployed in Microsoft Azure using a dedicated **Resource Group** that contains all the required services for the data pipeline.
+
+The resource group includes the following components:
+
+* Azure Data Factory
+* Azure Databricks
+* Azure Data Lake Storage Gen2
+* Azure SQL Database
+
+These services work together to build the end-to-end retail data engineering pipeline.
+
+![Azure Resource Group](images/azure-resource-group.png)
+
+## Data Lake Storage Structure
+
+The Azure Data Lake Storage container is organized following the **Medallion Architecture**.
+
+Layers implemented:
+
+* **Bronze Layer** – Raw data ingested from source systems
+* **Silver Layer** – Cleaned and transformed datasets
+* **Gold Layer** – Aggregated datasets optimized for analytics
+
+This structure enables scalable and reliable data processing.
+
+![Data Lake Containers](images/adls-container-structure.png)
+
+
 
 # Architecture
 
